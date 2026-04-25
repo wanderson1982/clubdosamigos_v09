@@ -34,6 +34,7 @@ export interface Gol {
   atletaId: string | number;
   quantidade: number; // Positivo para Pró, Negativo para Contra
   tipo: 'Pró' | 'Contra';
+  time: 'Azul' | 'Vermelho';
   rodada: number;
   data: string;
 }

@@ -2256,6 +2256,7 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
 }) {
   const [quantidade, setQuantidade] = useState<number>(1);
   const [tipo, setTipo] = useState<'Pró' | 'Contra'>('Pró');
+  const [time, setTime] = useState<'Azul' | 'Vermelho'>('Azul');
   const [rodada, setRodada] = useState<number>(1);
   const [data, setData] = useState('');
 
@@ -2275,10 +2276,11 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
     if (isOpen) {
       setQuantidade(1);
       setTipo('Pró');
+      setTime(atleta.time);
       setRodada(1);
       setData('');
     }
-  }, [isOpen]);
+  }, [isOpen, atleta]);
 
   if (!isOpen || !atleta) return null;
 
@@ -2288,6 +2290,7 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
       atletaId: atleta.id,
       quantidade: tipo === 'Pró' ? Math.abs(quantidade) : -Math.abs(quantidade),
       tipo,
+      time,
       rodada,
       data
     });
@@ -2313,19 +2316,17 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase flex items-center">
-                Rodada
-                <span className="ml-1 text-[10px] text-yellow-600 normal-case">(Auto)</span>
-              </label>
-              <input 
-                type="number" 
-                min="1"
-                value={rodada}
-                readOnly
-                className="w-full p-3 bg-gray-150 border border-gray-200 rounded-xl outline-none text-gray-500 cursor-not-allowed font-bold"
-                title="Calculada automaticamente com base na data"
-                required
-              />
+              <label className="text-xs font-bold text-gray-500 uppercase">Time</label>
+              <select 
+                value={time}
+                onChange={e => setTime(e.target.value as any)}
+                className={`w-full p-3 border rounded-xl outline-none font-bold ${
+                  time === 'Azul' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-red-200 text-red-700'
+                }`}
+              >
+                <option value="Azul">Time Azul</option>
+                <option value="Vermelho">Time Vermelho</option>
+              </select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase">Tipo</label>
@@ -2341,13 +2342,17 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase">Gols</label>
+              <label className="text-xs font-bold text-gray-500 uppercase flex items-center">
+                Rodada
+                <span className="ml-1 text-[10px] text-yellow-600 normal-case">(Auto)</span>
+              </label>
               <input 
                 type="number" 
                 min="1"
-                value={quantidade}
-                onChange={e => setQuantidade(Number(e.target.value))}
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                value={rodada}
+                readOnly
+                className="w-full p-3 bg-gray-150 border border-gray-200 rounded-xl outline-none text-gray-500 cursor-not-allowed font-bold"
+                title="Calculada automaticamente com base na data"
                 required
               />
             </div>
@@ -2362,14 +2367,23 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
               />
             </div>
           </div>
-          <div className="pt-4">
-            <button 
-              type="submit"
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-100 transition-all flex items-center justify-center"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              CONFIRMAR GOL
-            </button>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 uppercase text-center block">Quantidade de Gols</label>
+              <div className="flex items-center justify-center gap-4">
+                <button 
+                  type="button" 
+                  onClick={() => setQuantidade(prev => Math.max(1, prev - 1))}
+                  className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-xl font-bold hover:bg-gray-200"
+                >-</button>
+                <span className="text-3xl font-black">{quantidade}</span>
+                <button 
+                  type="button" 
+                  onClick={() => setQuantidade(prev => prev + 1)}
+                  className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-xl font-bold hover:bg-gray-200"
+                >+</button>
+              </div>
+            </div>
           </div>
         </form>
       </motion.div>
@@ -2395,6 +2409,7 @@ function GolEditModal({
   const [atletaId, setAtletaId] = useState<number | ''>('');
   const [quantidade, setQuantidade] = useState<number>(1);
   const [tipo, setTipo] = useState<'Pró' | 'Contra'>('Pró');
+  const [time, setTime] = useState<'Azul' | 'Vermelho'>('Azul');
   const [rodada, setRodada] = useState<number>(1);
   const [data, setData] = useState('');
 
@@ -2420,6 +2435,7 @@ function GolEditModal({
       setAtletaId(gol.atletaId);
       setQuantidade(Math.abs(gol.quantidade));
       setTipo(gol.tipo);
+      setTime(gol.time || 'Azul');
       setRodada(gol.rodada);
       setData(gol.data);
     }
@@ -2435,6 +2451,7 @@ function GolEditModal({
       atletaId: Number(atletaId),
       quantidade: tipo === 'Pró' ? Math.abs(quantidade) : -Math.abs(quantidade),
       tipo,
+      time,
       rodada,
       data
     });
@@ -2474,19 +2491,17 @@ function GolEditModal({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase flex items-center">
-                Rodada
-                <span className="ml-1 text-[10px] text-yellow-600 normal-case">(Auto)</span>
-              </label>
-              <input 
-                type="number" 
-                min="1"
-                value={rodada}
-                readOnly
-                className="w-full p-3 bg-gray-150 border border-gray-200 rounded-xl outline-none text-gray-500 cursor-not-allowed font-bold text-sm"
-                title="Calculada automaticamente com base na data"
-                required
-              />
+              <label className="text-xs font-bold text-gray-500 uppercase">Time</label>
+              <select 
+                value={time}
+                onChange={e => setTime(e.target.value as any)}
+                className={`w-full p-3 border rounded-xl outline-none font-bold text-sm ${
+                  time === 'Azul' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-red-200 text-red-700'
+                }`}
+              >
+                <option value="Azul">Time Azul</option>
+                <option value="Vermelho">Time Vermelho</option>
+              </select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase">Tipo</label>
@@ -2545,6 +2560,7 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
   onRemove: (id: string | number) => void
 }) {
   const [atletaId, setAtletaId] = useState<string | number | ''>('');
+  const [time, setTime] = useState<'Azul' | 'Vermelho'>('Azul');
   const [quantidade, setQuantidade] = useState<number>(1);
   const [tipo, setTipo] = useState<'Pró' | 'Contra'>('Pró');
   const [rodada, setRodada] = useState<number>(1);
@@ -2584,11 +2600,13 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
       atletaId: Number(atletaId),
       quantidade: tipo === 'Pró' ? Math.abs(quantidade) : -Math.abs(quantidade),
       tipo,
+      time,
       rodada,
       data
     });
 
     setAtletaId('');
+    setTime('Azul');
     setQuantidade(1);
     setTipo('Pró');
     setRodada(1);
@@ -2645,12 +2663,19 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
             Registrar Novo Gol
           </h2>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+        <form onSubmit={handleSubmit} className="p-6 grid grid-cols-1 md:grid-cols-6 gap-4">
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase">Atleta</label>
             <select 
               value={atletaId}
-              onChange={e => setAtletaId(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={e => {
+                const id = e.target.value === '' ? '' : Number(e.target.value);
+                setAtletaId(id);
+                if (id !== '') {
+                  const atleta = atletas.find(a => a.id === id);
+                  if (atleta) setTime(atleta.time);
+                }
+              }}
               className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
               required
             >
@@ -2658,6 +2683,20 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
               {atletas.filter(a => a.status === 'Ativo').sort((a, b) => a.nome.localeCompare(b.nome)).map(a => (
                 <option key={a.id} value={a.id}>{a.nome} ({a.time})</option>
               ))}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-500 uppercase">Time</label>
+            <select 
+              value={time}
+              onChange={e => setTime(e.target.value as any)}
+              className={`w-full p-3 border rounded-xl outline-none font-bold ${
+                time === 'Azul' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-red-200 text-red-700'
+              }`}
+              required
+            >
+              <option value="Azul">Time Azul</option>
+              <option value="Vermelho">Time Vermelho</option>
             </select>
           </div>
           <div className="space-y-1">
@@ -2707,7 +2746,7 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
               required
             />
           </div>
-          <div className="md:col-span-5">
+          <div className="md:col-span-6">
             <button 
               type="submit"
               className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-100 transition-all flex items-center justify-center"
@@ -2786,6 +2825,7 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
               <tr>
                 <th className="p-4 text-xs font-bold text-gray-500 uppercase">Data da Partida</th>
                 <th className="p-4 text-xs font-bold text-gray-500 uppercase">Atleta</th>
+                <th className="p-4 text-xs font-bold text-gray-500 uppercase text-center">Time Gol</th>
                 <th className="p-4 text-xs font-bold text-gray-500 uppercase text-center">Rodada</th>
                 <th className="p-4 text-xs font-bold text-gray-500 uppercase text-center">Tipo</th>
                 <th className="p-4 text-xs font-bold text-gray-500 uppercase text-center">Qtd</th>
@@ -2807,6 +2847,11 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
                         </div>
                         <span className="font-bold text-gray-900">{atleta?.nome || 'Atleta Excluído'}</span>
                       </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white ${gol.time === 'Azul' ? 'bg-blue-600' : 'bg-red-600'}`}>
+                        {gol.time}
+                      </span>
                     </td>
                     <td className="p-4 text-center text-sm font-semibold text-gray-600">
                       {gol.rodada}ª

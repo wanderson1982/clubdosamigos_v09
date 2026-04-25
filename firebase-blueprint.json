@@ -50,10 +50,11 @@
         "atletaId": { "type": "integer" },
         "quantidade": { "type": "integer" },
         "tipo": { "type": "string", "enum": ["Pró", "Contra"] },
+        "time": { "type": "string", "enum": ["Azul", "Vermelho"] },
         "rodada": { "type": "integer" },
         "data": { "type": "string", "format": "date" }
       },
-      "required": ["atletaId", "quantidade", "tipo", "rodada", "data"]
+      "required": ["atletaId", "quantidade", "tipo", "time", "rodada", "data"]
     }
   },
   "firestore": {
