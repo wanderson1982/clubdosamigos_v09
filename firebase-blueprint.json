@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "Atleta": {
+      "title": "Atleta",
+      "description": "Athlete profile and metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "codigo": { "type": "string" },
+        "nome": { "type": "string" },
+        "time": { "type": "string", "enum": ["Azul", "Vermelho"] },
+        "camisa": { "type": "string" },
+        "status": { "type": "string", "enum": ["Ativo", "Inativo", "Depto. Médico"] },
+        "dataCadastro": { "type": "string", "format": "date" },
+        "dataInativacao": { "type": "string", "format": "date" },
+        "obs": { "type": "string" },
+        "isFixo": { "type": "boolean" },
+        "historicoTimes": { "type": "array", "items": { "type": "string", "enum": ["Azul", "Vermelho"] } },
+        "dataNascimento": { "type": "string", "format": "date" },
+        "posicaoPrincipal": { "type": "string" },
+        "posicaoSecundaria": { "type": "string" },
+        "classificacao": { "type": "string", "enum": ["Atleta", "Membro Diretoria"] },
+        "pontuacao": { "type": "integer" }
+      },
+      "required": ["nome", "time", "status", "dataCadastro", "classificacao"]
+    },
+    "LancamentoFinanceiro": {
+      "title": "Lançamento Financeiro",
+      "description": "Financial records for athletes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "atletaId": { "type": "integer" },
+        "valor": { "type": "number" },
+        "dataPagamento": { "type": "string", "format": "date" },
+        "mesReferencia": { "type": "string" },
+        "anoReferencia": { "type": "integer" },
+        "status": { "type": "string", "enum": ["Pago", "Pendente"] },
+        "tipo": { "type": "string", "enum": ["Normal", "Social"] },
+        "cestaBasica": { "type": "boolean" }
+      },
+      "required": ["atletaId", "valor", "dataPagamento", "mesReferencia", "anoReferencia", "status", "tipo", "cestaBasica"]
+    },
+    "Gol": {
+      "title": "Gol",
+      "description": "Goal records for athletes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "atletaId": { "type": "integer" },
+        "quantidade": { "type": "integer" },
+        "tipo": { "type": "string", "enum": ["Pró", "Contra"] },
+        "rodada": { "type": "integer" },
+        "data": { "type": "string", "format": "date" }
+      },
+      "required": ["atletaId", "quantidade", "tipo", "rodada", "data"]
+    }
+  },
+  "firestore": {
+    "atletas/{atletaId}": {
+      "schema": "Atleta",
+      "description": "Collection of all athletes"
+    },
+    "financeiro/{financeiroId}": {
+      "schema": "LancamentoFinanceiro",
+      "description": "Financial records"
+    },
+    "gols/{golId}": {
+      "schema": "Gol",
+      "description": "Goal records"
+    }
+  }
+}

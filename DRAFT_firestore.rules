@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 3. Primitives
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'wandersonluis2009@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 2. Validation Blueprints
+    function isValidAtleta(data) {
+      return data.nome is string && data.nome.size() >= 2 && data.nome.size() <= 100 &&
+             data.time in ['Azul', 'Vermelho'] &&
+             data.status in ['Ativo', 'Inativo', 'Depto. Médico'] &&
+             data.dataCadastro is string &&
+             data.classificacao in ['Atleta', 'Membro Diretoria'] &&
+             (!('pontuacao' in data) || (data.pontuacao is int && data.pontuacao >= 0 && data.pontuacao <= 5));
+    }
+
+    function isValidFinanceiro(data) {
+      return data.atletaId is int &&
+             data.valor is number && data.valor > 0 &&
+             data.dataPagamento is string &&
+             data.mesReferencia is string &&
+             data.anoReferencia is int &&
+             data.status in ['Pago', 'Pendente'] &&
+             data.tipo in ['Normal', 'Social'];
+    }
+
+    function isValidGol(data) {
+      return data.atletaId is int &&
+             data.quantidade is int && data.quantidade != 0 &&
+             data.tipo in ['Pró', 'Contra'] &&
+             data.rodada is int &&
+             data.data is string;
+    }
+
+    // 4. Match Blocks
+    match /atletas/{atletaId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidAtleta(incoming());
+      allow update: if isSignedIn() && isValidAtleta(incoming()) && (
+        isAdmin() ||
+        // Only allow updating non-identity fields if not admin
+        incoming().diff(existing()).affectedKeys().hasOnly(['nome', 'time', 'camisa', 'status', 'obs', 'isFixo', 'historicoTimes', 'dataNascimento', 'posicaoPrincipal', 'posicaoSecundaria', 'classificacao', 'pontuacao', 'dataInativacao'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /financeiro/{financeiroId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidFinanceiro(incoming());
+      allow update: if isSignedIn() && isValidFinanceiro(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /gols/{golId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidGol(incoming());
+      allow update: if isSignedIn() && isValidGol(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable through Firebase Console or Cloud Functions
+    }
+  }
+}
