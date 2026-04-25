@@ -2276,7 +2276,6 @@ function QuickGoalModal({ isOpen, atleta, goals, onClose, onConfirm }: {
     if (isOpen) {
       setQuantidade(1);
       setTipo('Pró');
-      setTime(atleta.time);
       setRodada(1);
       setData('');
     }
@@ -2475,20 +2474,6 @@ function GolEditModal({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase">Atleta</label>
-            <select 
-              value={atletaId}
-              onChange={e => setAtletaId(e.target.value === '' ? '' : Number(e.target.value))}
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm"
-              required
-            >
-              <option value="">Selecione o Atleta</option>
-              {atletas.filter(a => a.status === 'Ativo').sort((a, b) => a.nome.localeCompare(b.nome)).map(a => (
-                <option key={a.id} value={a.id}>{a.nome} ({a.time})</option>
-              ))}
-            </select>
-          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase">Time</label>
@@ -2504,6 +2489,21 @@ function GolEditModal({
               </select>
             </div>
             <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 uppercase">Atleta</label>
+              <select 
+                value={atletaId}
+                onChange={e => setAtletaId(e.target.value === '' ? '' : Number(e.target.value))}
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm"
+                required
+              >
+                <option value="">Selecione o Atleta</option>
+                {atletas.filter(a => a.status === 'Ativo').sort((a, b) => a.nome.localeCompare(b.nome)).map(a => (
+                  <option key={a.id} value={a.id}>{a.nome}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+            <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase">Tipo</label>
               <select 
                 value={tipo}
@@ -2514,7 +2514,6 @@ function GolEditModal({
                 <option value="Contra">Gol Contra (-)</option>
               </select>
             </div>
-          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase">Gols</label>
@@ -2665,27 +2664,6 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
         </div>
         <form onSubmit={handleSubmit} className="p-6 grid grid-cols-1 md:grid-cols-6 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase">Atleta</label>
-            <select 
-              value={atletaId}
-              onChange={e => {
-                const id = e.target.value === '' ? '' : Number(e.target.value);
-                setAtletaId(id);
-                if (id !== '') {
-                  const atleta = atletas.find(a => a.id === id);
-                  if (atleta) setTime(atleta.time);
-                }
-              }}
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
-              required
-            >
-              <option value="">Selecione o Atleta</option>
-              {atletas.filter(a => a.status === 'Ativo').sort((a, b) => a.nome.localeCompare(b.nome)).map(a => (
-                <option key={a.id} value={a.id}>{a.nome} ({a.time})</option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase">Time</label>
             <select 
               value={time}
@@ -2697,6 +2675,23 @@ function ArtilhariaSection({ atletas, gols, onAdd, onUpdate, onRemove }: {
             >
               <option value="Azul">Time Azul</option>
               <option value="Vermelho">Time Vermelho</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-500 uppercase">Atleta</label>
+            <select 
+              value={atletaId}
+              onChange={e => {
+                const id = e.target.value === '' ? '' : Number(e.target.value);
+                setAtletaId(id);
+              }}
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+              required
+            >
+              <option value="">Selecione o Atleta</option>
+              {atletas.filter(a => a.status === 'Ativo').sort((a, b) => a.nome.localeCompare(b.nome)).map(a => (
+                <option key={a.id} value={a.id}>{a.nome}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1">
